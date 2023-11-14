@@ -79,11 +79,21 @@ class MainWindow(QMainWindow):
         # list only stl files
         self.file_list_widget.clear()
         import os
-        # get all stl files in the main and sub directories
+        # get all stl files in the main and sub directories in a dictionary
+        all_files = {}
+
         for root, dirs, files in os.walk(directory):
             for file in files:
                 if file.endswith(".stl"):
-                    self.file_list_widget.addItem(file)
+                    all_files[file] = os.path.join(root, file)
+        print(all_files)
+        # add all stl files to the list widget
+        for file in all_files:
+            self.file_list_widget.addItem(file)
+
+        # add a label to show the number of files
+        self.label.setText(f"Selected Directory: {directory} - {len(all_files)} files")
+
 
     # create a preview window that preview a 3D model
     def preview_3d_model(self, file):
