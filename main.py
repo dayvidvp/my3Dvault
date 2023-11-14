@@ -19,7 +19,7 @@ class MainWindow(QMainWindow):
         #determine the current screen size
         screen = app.primaryScreen()
         size = screen.size()
-        self.setGeometry(0, 0, size.width(), size.height() - 50)
+        self.setGeometry(0, 0, size.width(), size.height() - 100)
 
         # Create and set the central widget
         central_widget = QWidget()
@@ -41,7 +41,7 @@ class MainWindow(QMainWindow):
 
         # Create a preview widget (this could be QLabel or any other QWidget)
         self.preview_widget = QLabel("3D Model Preview")
-        self.preview_widget.setFixedSize(400, 600)  # Set fixed size for the preview widget
+        self.preview_widget.setFixedSize(400, 400)  # Set fixed size for the preview widget
 
         # Add the preview widget to the main layout
         main_layout.addWidget(self.preview_widget)
@@ -51,6 +51,7 @@ class MainWindow(QMainWindow):
 
         # Create a menu bar
         self.create_menu_bar()
+
 
     def create_menu_bar(self):
         # Create a menu bar with two actions: open and exit
@@ -67,6 +68,7 @@ class MainWindow(QMainWindow):
         exit_action.triggered.connect(self.close)
         file_menu.addAction(exit_action)
 
+
     def open_directory(self):
         # Open a dialog to select a directory
         directory = QFileDialog.getExistingDirectory(self, "Select Directory")
@@ -74,25 +76,41 @@ class MainWindow(QMainWindow):
             self.label.setText(f"Selected Directory: {directory}")
             self.list_files_in_directory(directory)
 
+
     def list_files_in_directory(self, directory):
+
         # This function will be updated to scan for 3D print files in all subdirectories
         # list only stl files
         self.file_list_widget.clear()
         import os
         # get all stl files in the main and sub directories in a dictionary
-        all_files = {}
+        self.all_files = {}
 
         for root, dirs, files in os.walk(directory):
             for file in files:
                 if file.endswith(".stl"):
-                    all_files[file] = os.path.join(root, file)
-        print(all_files)
+                    self.all_files[file] = os.path.join(root, file)
+
+        # sort the dictionary by key
+        self.all_files = dict(sorted(self.all_files.items()))
+
         # add all stl files to the list widget
-        for file in all_files:
+        for file in self.all_files:
             self.file_list_widget.addItem(file)
 
         # add a label to show the number of files
-        self.label.setText(f"Selected Directory: {directory} - {len(all_files)} files")
+        self.label.setText(f"Selected Directory: {directory} - {len(self.all_files)} files")
+
+        def preview_selected_file(self):
+
+            # Get the selected file
+            selected_file = self.file_list_widget.currentItem().text()
+
+            # Get the file path
+            file_path = self.all_files[selected_file]
+
+            # Preview the 3D model
+            self.preview_3d_model(file_path)
 
 
     # create a preview window that preview a 3D model
@@ -112,6 +130,7 @@ class MainWindow(QMainWindow):
 
         # Show the plot to the screen
         pyplot.show()
+
 
 # Create an instance of QApplication
 app = QApplication(sys.argv)
